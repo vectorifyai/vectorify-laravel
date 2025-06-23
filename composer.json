@@ -1,0 +1,54 @@
+{
+    "name": "vectorifyai/vectorify-laravel",
+    "description": "Vectorify package for Laravel. The fastest way to ask AI about your data.",
+    "keywords": [
+        "laravel",
+        "ai",
+        "llm",
+        "rag",
+        "mcp",
+        "vector",
+        "vector database",
+        "agent",
+        "openai"
+    ],
+    "type": "library",
+    "license": "MIT",
+    "require": {
+        "php": ">=8.2",
+        "illuminate/support": "^10.0|^11.0|^12.0",
+        "illuminate/database": "^10.0|^11.0|^12.0",
+        "illuminate/http": "^10.0|^11.0|^12.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^11.5"
+    },
+    "autoload": {
+        "psr-4": {
+            "Vectorify\\Laravel\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Vectorify\\Laravel\\Tests\\": "tests/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Vectorify\\Laravel\\Provider"
+            ]
+        }
+    },
+    "scripts": {
+        "test": "vendor/bin/phpunit --colors=always",
+        "psalm": "vendor/bin/psalm"
+    },
+    "config": {
+        "preferred-install": "dist",
+        "sort-packages": true,
+        "allow-plugins": {
+            "php-http/discovery": true
+        }
+    }
+}

@@ -1,0 +1,107 @@
+<?php
+
+namespace Vectorify\Laravel\Jobs;
+
+use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Log;
+use Throwable;
+use Vectorify\Laravel\Support\ConfigResolver;
+use Vectorify\Laravel\Support\QueryBuilder;
+use Vectorify\Laravel\Transporter\CollectionObject;
+use Vectorify\Laravel\Transporter\ItemObject;
+use Vectorify\Laravel\Transporter\Upsert;
+use Vectorify\Laravel\Transporter\UpsertObject;
+
+final class UpsertItems implements ShouldQueue
+{
+    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+
+    public int $tries = 3;
+    public int $timeout = 120; // 2 minutes per chunk
+
+    public function __construct(
+        public readonly string $collection,
+        public readonly string $items,
+    ) {}
+
+    public function handle(): void
+    {
+        $collectionName = ConfigResolver::getCollectionName($this->collection);
+
+        $config = ConfigResolver::getConfig($this->collection);
+
+        /** @var EloquentCollection $items */
+        $items = unserialize($this->items)->getClosure()();
+
+        Log::info("[Vectorify] Upserting items for collection: {$collectionName}", [
+            'package' => 'vectorify',
+            'chunk_size' => $items->count(),
+        ]);
+
+        try {
+            $builder = new QueryBuilder($config, null);
+
+            $items = $items->map(function (Model $item) use ($builder) {
+                $object = new ItemObject(
+                    id: $item->getKey(),
+                    data: $builder->getItemData($item),
+                    metadata: $builder->getItemMetadata(),
+                    tenant: $builder->getItemTenant(),
+                    url: null,
+                );
+
+                $builder->resetItemData();
+
+                return $object;
+            });
+
+            $object = new UpsertObject(
+                collection: new CollectionObject(
+                    name: $collectionName,
+                    metadata: $builder->metadata,
+                ),
+                items: $items->toArray(),
+            );
+
+            $response = (new Upsert())->send($object);
+
+            if (! $response) {
+                throw new \RuntimeException("Failed to upsert chunk for collection: {$collectionName}");
+            }
+
+            Log::info("[Vectorify] Successfully upserted items for collection: {$collectionName}", [
+                'package' => 'vectorify',
+                'chunk_size' => $items->count(),
+            ]);
+        } catch (Throwable $e) {
+            Log::error("[Vectorify] Upserting failed for collection: {$collectionName}", [
+                'package' => 'vectorify',
+                'chunk_size' => $items->count(),
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            throw $e;
+        }
+    }
+
+    public function backoff(): array
+    {
+        return [30, 60, 120];
+    }
+
+    public function failed(Throwable $exception): void
+    {
+        $collectionName = ConfigResolver::getCollectionName($this->collection);
+
+        Log::error("[Vectorify] Upserting permanently failed for collection: {$collectionName}", [
+            'package' => 'vectorify',
+            'error' => $exception->getMessage(),
+        ]);
+    }
+}
