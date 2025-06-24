@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Log;
 
 class Client
 {
-    public string $baseUrl = 'https://api.vectorify.ai/';
+    public string $baseUrl = 'https://api.vectorify.ai/v1/';
 
     public function get(string $path, array $options = []): ?Response
     {
