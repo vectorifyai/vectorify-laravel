@@ -10,7 +10,6 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
-use Laravel\SerializableClosure\SerializableClosure;
 use Throwable;
 use Vectorify\Laravel\Support\ConfigResolver;
 use Vectorify\Laravel\Support\QueryBuilder;
@@ -28,7 +27,7 @@ final class UpsertItems implements ShouldQueue
 
     public function __construct(
         public readonly string $collection,
-        public readonly SerializableClosure $items,
+        public readonly EloquentCollection $items,
     ) {}
 
     public function handle(): void
@@ -37,18 +36,15 @@ final class UpsertItems implements ShouldQueue
 
         $config = ConfigResolver::getConfig($this->collection);
 
-        /** @var EloquentCollection $items */
-        $items = $this->items->getClosure()();
-
         Log::info("[Vectorify] Upserting items for collection: {$collectionName}", [
             'package' => 'vectorify',
-            'chunk_size' => $items->count(),
+            'chunk_size' => $this->items->count(),
         ]);
 
         try {
             $builder = new QueryBuilder($config, null);
 
-            $items = $items->map(function (Model $item) use ($builder) {
+            $items = $this->items->map(function (Model $item) use ($builder) {
                 $object = new ItemObject(
                     id: $item->getKey(),
                     data: $builder->getItemData($item),
@@ -78,12 +74,12 @@ final class UpsertItems implements ShouldQueue
 
             Log::info("[Vectorify] Successfully upserted items for collection: {$collectionName}", [
                 'package' => 'vectorify',
-                'chunk_size' => $items->count(),
+                'chunk_size' => $this->items->count(),
             ]);
         } catch (Throwable $e) {
             Log::error("[Vectorify] Upserting failed for collection: {$collectionName}", [
                 'package' => 'vectorify',
-                'chunk_size' => $items->count(),
+                'chunk_size' => $this->items->count(),
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
             ]);
@@ -103,6 +99,7 @@ final class UpsertItems implements ShouldQueue
 
         Log::error("[Vectorify] Upserting permanently failed for collection: {$collectionName}", [
             'package' => 'vectorify',
+			'chunk_size' => $this->items->count(),
             'error' => $exception->getMessage(),
         ]);
     }

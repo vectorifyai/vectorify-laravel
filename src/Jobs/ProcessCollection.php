@@ -10,7 +10,6 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
-use Laravel\SerializableClosure\SerializableClosure;
 use Throwable;
 use Vectorify\Laravel\Jobs\UpsertItems;
 use Vectorify\Laravel\Support\ConfigResolver;
@@ -44,7 +43,7 @@ final class ProcessCollection implements ShouldQueue
 
                 dispatch(new UpsertItems(
                     collection: $this->collection,
-                    items: new SerializableClosure(fn () => $items),
+                    items: $items,
                 ))->onQueue($this->queue);
 
                 // Free memory
