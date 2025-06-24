@@ -5,14 +5,14 @@ namespace Vectorify\Laravel\Transporter;
 final readonly class CollectionObject
 {
     public function __construct(
-        public string $name,
+        public string $slug,
         public array $metadata = [],
     ) {}
 
     public function toArray(): array
     {
         return [
-            'name' => $this->name,
+            'slug' => $this->slug,
             'metadata' => $this->metadata,
         ];
     }
@@ -20,7 +20,7 @@ final readonly class CollectionObject
     public function toPayload(): array
     {
         return [
-            'name' => $this->name,
+            'slug' => $this->slug,
             'metadata' => $this->metadata,
         ];
     }

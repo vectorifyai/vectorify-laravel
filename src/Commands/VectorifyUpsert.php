@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Cache;
 use Vectorify\Laravel\Jobs\ProcessCollection;
+use Vectorify\Laravel\Support\ConfigResolver;
 use Vectorify\Laravel\Support\QueryBuilder;
 use Vectorify\Laravel\Transporter\CollectionObject;
 use Vectorify\Laravel\Transporter\ItemObject;
@@ -42,21 +43,23 @@ final class VectorifyUpsert extends Command
         $queue = $this->option('queue') ?: config('vectorify.queue');
 
         foreach ($collections as $collection => $config) {
-            $collectionName = is_int($collection) ? class_basename($config) : ucfirst($collection);
+			$collectionId = is_int($collection) ? $config : $collection;
 
-            $since = $this->getSince($collectionName);
+            $collectionSlug = ConfigResolver::getCollectionSlug($collectionId);
 
-            $this->info("Upserting collection: {$collectionName}" . ($since ? " (since: {$since})" : " (full)"));
+            $since = $this->getSince($collectionSlug);
+
+            $this->info("Upserting collection: {$collectionSlug}" . ($since ? " (since: {$since})" : " (full)"));
 
             if (config('queue.default') === 'sync') {
-                $this->processCollection($collectionName, $config, $since);
+                $this->processCollection($collectionSlug, $config, $since);
             } else {
                 dispatch(new ProcessCollection(
-                    collection: is_int($collection) ? $config : $collection,
+                    collectionId: $collectionId,
                     since: $since,
                 ))->onQueue($queue);
 
-                $this->info("  ➡️ Collection {$collectionName} queued for processing");
+                $this->info("  ➡️ Collection {$collectionSlug} queued for processing");
             }
 
             return self::SUCCESS;
@@ -68,7 +71,7 @@ final class VectorifyUpsert extends Command
     }
 
     public function processCollection(
-        string $collectionName,
+        string $collectionSlug,
         mixed $config,
         ?string $since
     ): void {
@@ -78,27 +81,27 @@ final class VectorifyUpsert extends Command
 
         $builder->getQuery()->chunk(
             count: 90,
-            callback: function (EloquentCollection $items) use ($collectionName, $builder, &$totalChunks) {
+            callback: function (EloquentCollection $items) use ($collectionSlug, $builder, &$totalChunks) {
                 $totalChunks++;
 
                 $this->upsert(
-                    collectionName: $collectionName,
+                    collectionSlug: $collectionSlug,
                     builder: $builder,
                     items: $items,
                 );
 
-                $this->info("  ➡️ {$items->count()} items processed for collection: {$collectionName}");
+                $this->info("  ➡️ {$items->count()} items processed for collection: {$collectionSlug}");
 
                 // Free memory
                 unset($items);
             }
         );
 
-        $this->info("  ➡️ {$totalChunks} chunks processed for collection: {$collectionName}");
+        $this->info("  ➡️ {$totalChunks} chunks processed for collection: {$collectionSlug}");
 
         if ($totalChunks > 0) {
             Cache::put(
-                "vectorify:last_upsert:{$collectionName}",
+                "vectorify:last_upsert:{$collectionSlug}",
                 now()->toDateTimeString(),
                 now()->addDays(30)
             );
@@ -106,7 +109,7 @@ final class VectorifyUpsert extends Command
     }
 
     public function upsert(
-        string $collectionName,
+        string $collectionSlug,
         QueryBuilder $builder,
         EloquentCollection $items,
     ): bool {
@@ -126,7 +129,7 @@ final class VectorifyUpsert extends Command
 
         $object = new UpsertObject(
             collection: new CollectionObject(
-                name: $collectionName,
+                slug: $collectionSlug,
                 metadata: $builder->metadata,
             ),
             items: $items->toArray(),
@@ -135,7 +138,7 @@ final class VectorifyUpsert extends Command
         $response = (new Upsert())->send($object);
 
         if (! $response) {
-            $this->error("❌ Failed to upsert collection: {$collectionName}");
+            $this->error("❌ Failed to upsert collection: {$collectionSlug}");
 
             return false;
         }
@@ -167,7 +170,7 @@ final class VectorifyUpsert extends Command
         return $collections;
     }
 
-    public function getSince(string $collectionName): ?string
+    public function getSince(string $collectionSlug): ?string
     {
         if ($this->option('force')) {
             return null; // Full upsert
@@ -177,6 +180,6 @@ final class VectorifyUpsert extends Command
             return $since;
         }
 
-        return Cache::get("vectorify:last_upsert:{$collectionName}");
+        return Cache::get("vectorify:last_upsert:{$collectionSlug}");
     }
 }

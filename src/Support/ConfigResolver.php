@@ -2,24 +2,28 @@
 
 namespace Vectorify\Laravel\Support;
 
+use use Illuminate\Support\Str;
+
 class ConfigResolver
 {
-    public static function getConfig(string $collection): array|string
+    public static function getConfig(string $collectionId): array|string
     {
         $collections = config('vectorify.collections', []);
 
         // Check if collection exists as a named array configuration
-        if (array_key_exists($collection, $collections)) {
-            return $collections[$collection];
+        if (array_key_exists($collectionId, $collections)) {
+            return $collections[$collectionId];
         }
 
-        return $collection;
+        return $collectionId;
     }
 
-    public static function getCollectionName(mixed $collection): string
+    public static function getCollectionSlug(mixed $collectionId): string
     {
-        return str_contains($collection, '\\')
-            ? class_basename($collection)
-            : ucfirst($collection);
+        $string = str_contains($collectionId, '\\')
+            ? class_basename($collectionId)
+            : $collectionId;
+
+		return Str::slug(Str::snake($string));
     }
 }

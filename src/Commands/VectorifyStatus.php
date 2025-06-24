@@ -5,6 +5,7 @@ namespace Vectorify\Laravel\Commands;
 use Illuminate\Console\Command;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
+use Vectorify\Laravel\Support\ConfigResolver;
 
 final class VectorifyStatus extends Command
 {
@@ -26,12 +27,14 @@ final class VectorifyStatus extends Command
             $rows = [];
 
             foreach ($collections as $collection => $config) {
-                $collectionName = is_int($collection) ? class_basename($config) : ucfirst($collection);
+                $collectionId = is_int($collection) ? $config : $collection;
 
-                $lastUpsert = Cache::get("vectorify:last_upsert:{$collectionName}");
+				$collectionSlug = ConfigResolver::getCollectionSlug($collectionId);
+
+                $lastUpsert = Cache::get("vectorify:last_upsert:{$collectionSlug}");
 
                 $rows[] = [
-                    $collectionName,
+                    $collectionSlug,
                     $lastUpsert ? Carbon::parse($lastUpsert)->diffForHumans() : 'Never',
                     $lastUpsert ? '✅ Upserted' : '⏳ Pending'
                 ];

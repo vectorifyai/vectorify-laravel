@@ -22,7 +22,7 @@ final class ProcessCollection implements ShouldQueue
     public int $tries = 3;
 
     public function __construct(
-        public readonly string $collection,
+        public readonly string $collectionId,
         public readonly ?string $since,
     ) {}
 
@@ -30,9 +30,9 @@ final class ProcessCollection implements ShouldQueue
     {
         $totalChunks = 0;
 
-        $collectionName = ConfigResolver::getCollectionName($this->collection);
+        $collectionSlug = ConfigResolver::getCollectionSlug($this->collectionId);
 
-        $config = ConfigResolver::getConfig($this->collection);
+        $config = ConfigResolver::getConfig($this->collectionId);
 
         $builder = new QueryBuilder($config, $this->since);
 
@@ -42,7 +42,7 @@ final class ProcessCollection implements ShouldQueue
                 $totalChunks++;
 
                 dispatch(new UpsertItems(
-                    collection: $this->collection,
+                    collectionId: $this->collectionId,
                     items: $items,
                 ))->onQueue($this->queue);
 
@@ -51,14 +51,14 @@ final class ProcessCollection implements ShouldQueue
             }
         );
 
-        Log::info("[Vectorify] Successfully processed chunks for collection: {$collectionName}", [
+        Log::info("[Vectorify] Successfully processed chunks for collection: {$collectionSlug}", [
             'package' => 'vectorify',
             'total_chunks' => $totalChunks,
         ]);
 
         if ($totalChunks > 0) {
             Cache::put(
-                "vectorify:last_upsert:{$collectionName}",
+                "vectorify:last_upsert:{$collectionSlug}",
                 now()->toDateTimeString(),
                 now()->addDays(30)
             );
@@ -72,9 +72,9 @@ final class ProcessCollection implements ShouldQueue
 
     public function failed(Throwable $exception): void
     {
-        $collectionName = ConfigResolver::getCollectionName($this->collection);
+        $collectionSlug = ConfigResolver::getCollectionSlug($this->collectionId);
 
-        Log::error("[Vectorify] Collection processing permanently failed for {$collectionName}", [
+        Log::error("[Vectorify] Collection processing permanently failed for {$collectionSlug}", [
             'package' => 'vectorify',
             'error' => $exception->getMessage(),
         ]);

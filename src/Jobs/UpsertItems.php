@@ -26,17 +26,17 @@ final class UpsertItems implements ShouldQueue
     public int $timeout = 120; // 2 minutes per chunk
 
     public function __construct(
-        public readonly string $collection,
+        public readonly string $collectionId,
         public readonly EloquentCollection $items,
     ) {}
 
     public function handle(): void
     {
-        $collectionName = ConfigResolver::getCollectionName($this->collection);
+        $collectionSlug = ConfigResolver::getCollectionSlug($this->collectionId);
 
-        $config = ConfigResolver::getConfig($this->collection);
+        $config = ConfigResolver::getConfig($this->collectionId);
 
-        Log::info("[Vectorify] Upserting items for collection: {$collectionName}", [
+        Log::info("[Vectorify] Upserting items for collection: {$collectionSlug}", [
             'package' => 'vectorify',
             'chunk_size' => $this->items->count(),
         ]);
@@ -60,7 +60,7 @@ final class UpsertItems implements ShouldQueue
 
             $object = new UpsertObject(
                 collection: new CollectionObject(
-                    name: $collectionName,
+                    slug: $collectionSlug,
                     metadata: $builder->metadata,
                 ),
                 items: $items->toArray(),
@@ -69,15 +69,15 @@ final class UpsertItems implements ShouldQueue
             $response = (new Upsert())->send($object);
 
             if (! $response) {
-                throw new \RuntimeException("Failed to upsert chunk for collection: {$collectionName}");
+                throw new \RuntimeException("Failed to upsert chunk for collection: {$collectionSlug}");
             }
 
-            Log::info("[Vectorify] Successfully upserted items for collection: {$collectionName}", [
+            Log::info("[Vectorify] Successfully upserted items for collection: {$collectionSlug}", [
                 'package' => 'vectorify',
                 'chunk_size' => $this->items->count(),
             ]);
         } catch (Throwable $e) {
-            Log::error("[Vectorify] Upserting failed for collection: {$collectionName}", [
+            Log::error("[Vectorify] Upserting failed for collection: {$collectionSlug}", [
                 'package' => 'vectorify',
                 'chunk_size' => $this->items->count(),
                 'error' => $e->getMessage(),
@@ -95,9 +95,9 @@ final class UpsertItems implements ShouldQueue
 
     public function failed(Throwable $exception): void
     {
-        $collectionName = ConfigResolver::getCollectionName($this->collection);
+        $collectionSlug = ConfigResolver::getCollectionSlug($this->collectionId);
 
-        Log::error("[Vectorify] Upserting permanently failed for collection: {$collectionName}", [
+        Log::error("[Vectorify] Upserting permanently failed for collection: {$collectionSlug}", [
             'package' => 'vectorify',
 			'chunk_size' => $this->items->count(),
             'error' => $exception->getMessage(),
