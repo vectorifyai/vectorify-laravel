@@ -4,11 +4,13 @@ namespace Vectorify\Laravel\Jobs;
 
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
+use Laravel\SerializableClosure\SerializableClosure;
 use Throwable;
 use Vectorify\Laravel\Support\ConfigResolver;
 use Vectorify\Laravel\Support\QueryBuilder;
@@ -26,7 +28,7 @@ final class UpsertItems implements ShouldQueue
 
     public function __construct(
         public readonly string $collection,
-        public readonly string $items,
+        public readonly SerializableClosure $items,
     ) {}
 
     public function handle(): void
@@ -36,7 +38,7 @@ final class UpsertItems implements ShouldQueue
         $config = ConfigResolver::getConfig($this->collection);
 
         /** @var EloquentCollection $items */
-        $items = unserialize($this->items)->getClosure()();
+        $items = $this->items->getClosure()();
 
         Log::info("[Vectorify] Upserting items for collection: {$collectionName}", [
             'package' => 'vectorify',

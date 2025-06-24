@@ -44,7 +44,7 @@ final class ProcessCollection implements ShouldQueue
 
                 dispatch(new UpsertItems(
                     collection: $this->collection,
-                    items: serialize(new SerializableClosure(fn () => $items)),
+                    items: new SerializableClosure(fn () => $items),
                 ))->onQueue($this->queue);
 
                 // Free memory
