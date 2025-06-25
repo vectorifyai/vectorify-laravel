@@ -43,7 +43,7 @@ final class VectorifyUpsert extends Command
         $queue = $this->option('queue') ?: config('vectorify.queue');
 
         foreach ($collections as $collection => $config) {
-			$collectionId = is_int($collection) ? $config : $collection;
+            $collectionId = is_int($collection) ? $config : $collection;
 
             $collectionSlug = ConfigResolver::getCollectionSlug($collectionId);
 

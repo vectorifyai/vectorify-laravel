@@ -24,6 +24,6 @@ class ConfigResolver
             ? class_basename($collectionId)
             : $collectionId;
 
-		return Str::slug(Str::snake($string));
+        return Str::slug(Str::snake($string));
     }
 }

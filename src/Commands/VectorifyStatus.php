@@ -29,7 +29,7 @@ final class VectorifyStatus extends Command
             foreach ($collections as $collection => $config) {
                 $collectionId = is_int($collection) ? $config : $collection;
 
-				$collectionSlug = ConfigResolver::getCollectionSlug($collectionId);
+                $collectionSlug = ConfigResolver::getCollectionSlug($collectionId);
 
                 $lastUpsert = Cache::get("vectorify:last_upsert:{$collectionSlug}");
 

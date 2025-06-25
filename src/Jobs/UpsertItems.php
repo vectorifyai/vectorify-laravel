@@ -99,7 +99,7 @@ final class UpsertItems implements ShouldQueue
 
         Log::error("[Vectorify] Upserting permanently failed for collection: {$collectionSlug}", [
             'package' => 'vectorify',
-			'chunk_size' => $this->items->count(),
+            'chunk_size' => $this->items->count(),
             'error' => $exception->getMessage(),
         ]);
     }
