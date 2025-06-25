@@ -8,14 +8,14 @@ use Vectorify\Laravel\Transporter\CollectionObject;
 
 final class CollectionObjectTest extends TestCase
 {
-    public string $name;
+    public string $slug;
     public array $metadata;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        $this->name = 'invoices';
+        $this->slug = 'invoices';
 
         $this->metadata = [
             'customer_name' => [
@@ -32,30 +32,30 @@ final class CollectionObjectTest extends TestCase
     }
 
     #[Test]
-    public function collection_object_creation_with_name_only(): void
+    public function collection_object_creation_with_slug_only(): void
     {
-        $collection = new CollectionObject($this->name);
+        $collection = new CollectionObject($this->slug);
 
-        $this->assertEquals($this->name, $collection->name);
+        $this->assertEquals($this->slug, $collection->slug);
         $this->assertEquals([], $collection->metadata);
     }
 
     #[Test]
     public function collection_object_creation_with_metadata(): void
     {
-        $collection = new CollectionObject($this->name, $this->metadata);
+        $collection = new CollectionObject($this->slug, $this->metadata);
 
-        $this->assertEquals($this->name, $collection->name);
+        $this->assertEquals($this->slug, $collection->slug);
         $this->assertEquals($this->metadata, $collection->metadata);
     }
 
     #[Test]
     public function collection_returns_correct_structure(): void
     {
-        $collection = new CollectionObject($this->name, $this->metadata);
+        $collection = new CollectionObject($this->slug, $this->metadata);
 
         $expected = [
-            'name' => $this->name,
+            'slug' => $this->slug,
             'metadata' => $this->metadata,
         ];
 

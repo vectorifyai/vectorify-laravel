@@ -18,7 +18,7 @@ final class UpsertObjectTest extends TestCase
         parent::setUp();
 
         $this->collection = new CollectionObject(
-            name: 'invoices',
+            slug: 'invoices',
             metadata: [
                 'status' => ['type' => 'enum', 'options' => ['draft', 'sent', 'paid']],
                 'due_at' => ['type' => 'datetime'],
@@ -156,7 +156,7 @@ final class UpsertObjectTest extends TestCase
         $payload = $upsert->toPayload();
 
         $this->assertEquals($complexMetadata, $payload['collection']['metadata']);
-        $this->assertEquals('articles', $payload['collection']['name']);
+        $this->assertEquals('articles', $payload['collection']['slug']);
     }
 
     #[Test]
