@@ -181,7 +181,7 @@ final class UpsertEndpointTest extends TestCase
 
                             // Verify collection structure
                             $this->assertEquals($expectedPayload['collection'], $decodedBody['collection']);
-                            $this->assertEquals('invoices', $decodedBody['collection']['name']);
+                            $this->assertEquals('invoices', $decodedBody['collection']['slug']);
                             $this->assertArrayHasKey('metadata', $decodedBody['collection']);
 
                             // Verify items structure
