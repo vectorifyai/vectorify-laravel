@@ -2,6 +2,17 @@
 
 Vectorify is the end-to-end AI connector for Laravel, letting you query and explore your data in natural language in seconds.
 
+Laravel is famous for turning complex web app chores into elegant, artisan-friendly code. Vectorify brings that same spirit to AI-powered data exploration: with one `composer install` and a single `config` file, your Laravel app becomes a conversational knowledge base you (and your customers) can query in natural language.
+
+To interact with your data, you have four primary methods to choose from:
+
+1. Use the [Chats](https://app.vectorify.ai/) page within our platform (fastest)
+2. Embed the [Chatbot](https://docs.vectorify.ai/project/chatbot) into your Laravel app (turn data querying into a product feature)
+3. Add the [MCP](https://docs.vectorify.ai/mcp-server) server to ChatGPT, Claude, etc. (use your data anywhere you work)
+4. Call the REST [API](https://docs.vectorify.ai/api-reference) endpoints (build custom integrations and workflows)
+
+Unlike text-to-SQL tools that expose your entire database and take 30+ seconds per query, Vectorify uses proven RAG technology to deliver accurate answers in <4 seconds while keeping your database secure. Head to our [blog](https://vectorify.ai/blog/vectorify-laravel-unlock-ai-ready-data-in-60-seconds) to learn more about Vectorify.
+
 This package provides seamless integration to automatically extract, transform, and upsert your Laravel application data to Vectorify.
 
 ## Requirements
