@@ -43,7 +43,15 @@ You can get your API Key from Vectorify's [dashboard](https://app.vectorify.ai).
 
 ### 3. Configure collections
 
-Edit the `config/vectorify.php` file to define which models (collections) and columns you want to upsert. Read the [documentation](https://docs.vectorify.ai/configuration) to learn more how to define the collections.
+Edit the `config/vectorify.php` file to define which models (collections) and columns you want to upsert. The simplest collection configuration references a model class:
+
+```php
+'collections' => [
+    \App\Models\Invoice::class,
+]
+```
+
+This approach uses the model's `$fillable` properties or a custom `$vectorify` property as the column list. Read the [documentation](https://docs.vectorify.ai/configuration) to learn more how to define the collections.
 
 ## Upsert
 
