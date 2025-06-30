@@ -4,6 +4,11 @@ Vectorify is the end-to-end AI connector for Laravel, letting you query and expl
 
 Laravel is famous for turning complex web app chores into elegant, artisan-friendly code. Vectorify brings that same spirit to AI-powered data exploration: with one `composer install` and a single `config` file, your Laravel app becomes a conversational knowledge base you (and your customers) can query in natural language.
 
+<div align="center">
+    <img alt="vectorify setup" src="https://vectorify.ai/packages/vectorify-laravel/vectorify-setup.svg">
+    <br/><br/>
+</div>
+
 To interact with your data, you have four primary methods to choose from:
 
 1. Use the [Chats](https://app.vectorify.ai/) page within our platform (fastest)
