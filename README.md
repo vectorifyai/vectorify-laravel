@@ -51,7 +51,7 @@ Edit the `config/vectorify.php` file to define which models (collections) and co
 ]
 ```
 
-This approach uses the model's `$fillable` properties or a custom `$vectorify` property as the column list. Read the [documentation](https://docs.vectorify.ai/configuration) to learn more how to define the collections.
+This approach uses the model's `$fillable` or a custom `$vectorify` property as the column list. Read the [documentation](https://docs.vectorify.ai/configuration) to learn more about defining the collections.
 
 ## Upsert
 
