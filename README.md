@@ -30,7 +30,7 @@ This package provides seamless integration to automatically extract, transform, 
 Install the package via Composer:
 
 ```bash
-composer require vectorifyai/laravel-vectorify
+composer require vectorifyai/vectorify-laravel
 ```
 
 The package automatically registers itself with Laravel through package auto-discovery.
