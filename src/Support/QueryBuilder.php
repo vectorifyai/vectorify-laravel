@@ -61,7 +61,7 @@ class QueryBuilder
             $this->query->vectorify();
         }
 
-        if (! empty($this->since) && method_exists($this->model, 'getUpdatedAtColumn')) {
+        if (! empty($this->since) && $this->model->usesTimestamps()) {
             $this->query->where(
                 column: $this->query->qualifyColumn($this->model->getUpdatedAtColumn()),
                 operator: '>=',
