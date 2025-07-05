@@ -21,7 +21,7 @@ class Provider extends ServiceProvider
     {
         $this->publishes([
             __DIR__ . '/../config/vectorify.php' => config_path('vectorify.php'),
-        ]);
+        ], 'vectorify');
 
         if (! $this->app->runningInConsole()) {
             return;
