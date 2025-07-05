@@ -61,8 +61,6 @@ final class VectorifyUpsert extends Command
 
                 $this->info("  ➡️ Collection {$collectionSlug} queued for processing");
             }
-
-            return self::SUCCESS;
         }
 
         $this->info('✅ All collections upserted successfully!');
