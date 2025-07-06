@@ -9,14 +9,15 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Throwable;
 use Vectorify\Laravel\Support\ConfigResolver;
 use Vectorify\Laravel\Support\QueryBuilder;
-use Vectorify\Laravel\Transporter\CollectionObject;
-use Vectorify\Laravel\Transporter\ItemObject;
-use Vectorify\Laravel\Transporter\Upsert;
-use Vectorify\Laravel\Transporter\UpsertObject;
+use Vectorify\Objects\CollectionObject;
+use Vectorify\Objects\ItemObject;
+use Vectorify\Objects\UpsertObject;
+use Vectorify\Vectorify;
 
 final class UpsertItems implements ShouldQueue
 {
@@ -66,7 +67,13 @@ final class UpsertItems implements ShouldQueue
                 items: $items->toArray(),
             );
 
-            $response = (new Upsert())->send($object);
+            $vectorify = new Vectorify(
+                apiKey: (string) config('vectorify.api_key'),
+                timeout: (int) config('vectorify.timeout'),
+                cache: Cache::store(),
+            );
+
+            $response = $vectorify->upserts->create($object);
 
             if (! $response) {
                 throw new \RuntimeException("Failed to upsert chunk for collection: {$collectionSlug}");

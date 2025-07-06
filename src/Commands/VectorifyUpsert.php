@@ -9,10 +9,10 @@ use Illuminate\Support\Facades\Cache;
 use Vectorify\Laravel\Jobs\ProcessCollection;
 use Vectorify\Laravel\Support\ConfigResolver;
 use Vectorify\Laravel\Support\QueryBuilder;
-use Vectorify\Laravel\Transporter\CollectionObject;
-use Vectorify\Laravel\Transporter\ItemObject;
-use Vectorify\Laravel\Transporter\Upsert;
-use Vectorify\Laravel\Transporter\UpsertObject;
+use Vectorify\Objects\CollectionObject;
+use Vectorify\Objects\ItemObject;
+use Vectorify\Objects\UpsertObject;
+use Vectorify\Vectorify;
 
 final class VectorifyUpsert extends Command
 {
@@ -59,7 +59,7 @@ final class VectorifyUpsert extends Command
                     since: $since,
                 ))->onQueue($queue);
 
-                $this->info("  ➡️ Collection {$collectionSlug} queued for processing");
+                $this->info("➡️ Collection {$collectionSlug} queued for processing");
             }
         }
 
@@ -88,14 +88,14 @@ final class VectorifyUpsert extends Command
                     items: $items,
                 );
 
-                $this->info("  ➡️ {$items->count()} items processed for collection: {$collectionSlug}");
+                $this->info("➡️ {$items->count()} items processed for collection: {$collectionSlug}");
 
                 // Free memory
                 unset($items);
             }
         );
 
-        $this->info("  ➡️ {$totalChunks} chunks processed for collection: {$collectionSlug}");
+        $this->info("➡️ {$totalChunks} chunks processed for collection: {$collectionSlug}");
 
         if ($totalChunks > 0) {
             Cache::put(
@@ -133,7 +133,13 @@ final class VectorifyUpsert extends Command
             items: $items->toArray(),
         );
 
-        $response = (new Upsert())->send($object);
+        $vectorify = new Vectorify(
+            apiKey: (string) config('vectorify.api_key'),
+            timeout: (int) config('vectorify.timeout'),
+            cache: Cache::store(),
+        );
+
+        $response = $vectorify->upserts->create($object);
 
         if (! $response) {
             $this->error("❌ Failed to upsert collection: {$collectionSlug}");

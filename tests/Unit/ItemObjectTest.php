@@ -4,7 +4,7 @@ namespace Vectorify\Laravel\Tests\Unit;
 
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
-use Vectorify\Laravel\Transporter\ItemObject;
+use Vectorify\Objects\ItemObject;
 
 final class ItemObjectTest extends TestCase
 {

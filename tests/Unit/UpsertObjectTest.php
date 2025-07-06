@@ -4,9 +4,9 @@ namespace Vectorify\Laravel\Tests\Unit;
 
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
-use Vectorify\Laravel\Transporter\CollectionObject;
-use Vectorify\Laravel\Transporter\ItemObject;
-use Vectorify\Laravel\Transporter\UpsertObject;
+use Vectorify\Objects\CollectionObject;
+use Vectorify\Objects\ItemObject;
+use Vectorify\Objects\UpsertObject;
 
 final class UpsertObjectTest extends TestCase
 {
