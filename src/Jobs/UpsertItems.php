@@ -23,7 +23,7 @@ final class UpsertItems implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public int $tries = 3;
-    public int $timeout = 120; // 2 minutes per chunk
+    public int $timeout = 600; // 10 minutes per chunk
 
     public function __construct(
         public readonly string $collectionId,
