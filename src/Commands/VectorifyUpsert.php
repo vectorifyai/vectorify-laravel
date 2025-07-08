@@ -133,13 +133,7 @@ final class VectorifyUpsert extends Command
             items: $items->toArray(),
         );
 
-        $vectorify = new Vectorify(
-            apiKey: (string) config('vectorify.api_key'),
-            timeout: (int) config('vectorify.timeout'),
-            cache: Cache::store(),
-        );
-
-        $response = $vectorify->upserts->create($object);
+        $response = app(Vectorify::class)->upserts->create($object);
 
         if (! $response) {
             $this->error("❌ Failed to upsert collection: {$collectionSlug}");

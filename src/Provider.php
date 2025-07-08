@@ -3,10 +3,13 @@
 namespace Vectorify\Laravel;
 
 use Illuminate\Console\Scheduling\Schedule;
+use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Stringable;
-use Vectorify\Laravel\Commands\VectorifyUpsert;
+use Vectorify\GuzzleRateLimiter\Stores\LaravelStore;
 use Vectorify\Laravel\Commands\VectorifyStatus;
+use Vectorify\Laravel\Commands\VectorifyUpsert;
+use Vectorify\Vectorify;
 
 class Provider extends ServiceProvider
 {
@@ -15,6 +18,25 @@ class Provider extends ServiceProvider
         $this->mergeConfigFrom(
             __DIR__ . '/../config/vectorify.php', 'vectorify'
         );
+
+        $this->app->singleton(Vectorify::class, function (Application $app) {
+            $apiKey = config('vectorify.api_key');
+            $timeout = config('vectorify.timeout', 300);
+
+            if (empty($apiKey)) {
+                throw new \InvalidArgumentException(
+                    message: 'Vectorify API key is required. Please set VECTORIFY_API_KEY environment variable.'
+                );
+            }
+
+            // Create Laravel cache store for rate limiting
+            $store = new LaravelStore(
+                $app->make('cache')->store(),
+                'vectorify:api:rate_limit'
+            );
+
+            return new Vectorify($apiKey, $timeout, $store);
+        });
     }
 
     public function boot()
