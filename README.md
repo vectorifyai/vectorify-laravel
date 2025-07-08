@@ -1,5 +1,10 @@
 # Vectorify package for Laravel
 
+[![Latest Version](https://img.shields.io/packagist/v/vectorifyai/vectorify-laravel.svg?label=latest&style=flat)](https://packagist.org/packages/vectorifyai/vectorify-laravel)
+[![Total Downloads](https://img.shields.io/packagist/dt/vectorifyai/vectorify-laravel.svg?style=flat)](https://packagist.org/packages/vectorifyai/vectorify-laravel)
+[![Tests](https://img.shields.io/github/actions/workflow/status/vectorifyai/vectorify-laravel/tests.yml?label=tests&style=flat)](https://github.com/vectorifyai/vectorify-laravel/actions/workflows/tests.yml)
+[![License](https://img.shields.io/packagist/l/vectorifyai/vectorify-laravel.svg?style=flat)](LICENSE.md)
+
 Vectorify is the end-to-end AI connector for Laravel, letting you query and explore your data in natural language in seconds.
 
 Laravel is famous for turning complex web app chores into elegant, artisan-friendly code. Vectorify brings that same spirit to AI-powered data exploration: with one `composer install` and a single `config` file, your Laravel app becomes a conversational knowledge base you (and your customers) can query in natural language.
